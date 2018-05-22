@@ -14,7 +14,8 @@ def sigmoid(x):
     :param x: wektor wejsciowych wartosci Nx1
     :return: wektor wyjściowych wartości funkcji sigmoidalnej dla wejścia x, Nx1
     """
-    pass
+    return np.divide(1, np.add(1, np.exp(-x)))
+
 
 def logistic_cost_function(w, x_train, y_train):
     """
