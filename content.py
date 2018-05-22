@@ -27,10 +27,10 @@ def logistic_cost_function(w, x_train, y_train):
     #funkcja signoidalna dla x_train @ w
     sig = sigmoid(x_train @ w)
     #obliczenie funkcji wiarygodności - wzór 7 + 8
-    log_cos_fun = np.divide(np.sum(y_train * np.log(sig) + (1 - y_train) * np.log(1 - sig)), -1 * sig.shape[0])
+    log_cost_fun = np.divide(np.sum(y_train * np.log(sig) + (1 - y_train) * np.log(1 - sig)), -1 * sig.shape[0])
     #obliczenie gradientu
     grad = x_train.transpose() @ (sig - y_train) / sig.shape[0]
-    return log_cos_fun, grad
+    return log_cost_fun, grad
 
 
 def gradient_descent(obj_fun, w0, epochs, eta):
@@ -113,7 +113,24 @@ def regularized_logistic_cost_function(w, x_train, y_train, regularization_lambd
     :return: funkcja zwraca krotke (val, grad), gdzie val oznacza wartosc funkcji logistycznej z regularyzacja l2,
     a grad jej gradient po w
     """
-    pass
+    #usuwamy wyraz wolny z parametrów (bez wagi dla cechy x0, która zawsze jest równa 1)
+    ws = np.delete(w, 0)
+    #funkcja signoidalna dla x_train @ w
+    sig = sigmoid(x_train @ w)
+
+    #obliczenie części regularyzacji
+    norm = regularization_lambda/2*(np.linalg.norm(ws)**2)
+    #obliczenie funkcji wiarygodności
+    log_cost_fun = np.divide(np.sum(y_train * np.log(sig) + (1 - y_train) * np.log(1 - sig)), -1 * sig.shape[0])
+    log_cost_fun_reg = log_cost_fun + norm
+
+    #obliczenie gradientu
+    w = w.transpose()
+    wz = w.copy().transpose()
+    wz[0] = 0
+    grad = (x_train.transpose() @ (sig - y_train)) / sig.shape[0] + regularization_lambda * wz
+    return log_cost_fun_reg, grad
+
 
 def prediction(x, w, theta):
     """
