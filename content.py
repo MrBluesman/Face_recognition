@@ -48,7 +48,7 @@ def gradient_descent(obj_fun, w0, epochs, eta):
     f_val, w_grad = obj_fun(w)
 
     for k in range(epochs):
-        # kolejny krok według algorytmu gradientu prostego
+        #kolejny krok według algorytmu gradientu prostego
         w = w - eta * w_grad
         #oblicz wartosc funkcji
         f_val, w_grad = obj_fun(w)
@@ -72,7 +72,37 @@ def stochastic_gradient_descent(obj_fun, x_train, y_train, w0, epochs, eta, mini
     gdzie w oznacza znaleziony optymalny punkt w, a func_values jest wektorem wartosci funkcji [epochs x 1] we wszystkich krokach algorytmu. Wartosci
     funkcji do func_values sa wyliczane dla calego zbioru treningowego!
     """
-    pass
+    #inicjalizacja
+    w = w0
+    w_values = []
+    x_views = []
+    y_views = []
+    m_amount = int(y_train.shape[0] / mini_batch)
+
+    #podział na mini paczki
+    for m in range(m_amount):
+        x_views.append(x_train[m * mini_batch: (m + 1) * mini_batch])
+        y_views.append(y_train[m * mini_batch: (m + 1) * mini_batch])
+
+    for k in range(epochs):
+        for m in range(m_amount):
+            # oblicz wartosc funkcji
+            _, w_grad = obj_fun(w, x_views[m], y_views[m])
+            # kolejny krok według algorytmu gradientu prostego
+            w = w - eta * w_grad
+        #dodajemy do wektora wszystkich punktów w, by później obliczyć wartości funkcji func_values dla całego
+        #zbioru treningowego
+        w_values.append(w)
+
+    #funkcja pomocnicza do obliczania wartości funkcji celu na całym zbiorze trzeningowym
+    f = lambda w_val: obj_fun(w_val, x_train, y_train)
+
+    #wyliczenie wartości funkcji celu dla całego wektora
+    xx = list(map(f, w_values))
+    func_values, _ = zip(*xx)
+
+    return w, np.reshape(np.array(func_values), (epochs, 1))
+
 
 def regularized_logistic_cost_function(w, x_train, y_train, regularization_lambda):
     """
