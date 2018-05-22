@@ -24,7 +24,14 @@ def logistic_cost_function(w, x_train, y_train):
     :param y_train: ciag treningowy - wyjscia Nx1
     :return: funkcja zwraca krotke (val, grad), gdzie val oznacza wartosc funkcji logistycznej, a grad jej gradient po w
     """
-    pass
+    #funkcja signoidalna dla x_train @ w
+    sig = sigmoid(x_train @ w)
+    #obliczenie funkcji wiarygodności - wzór 7 + 8
+    log_cos_fun = np.divide(np.sum(y_train * np.log(sig) + (1 - y_train) * np.log(1 - sig)), -1 * sig.shape[0])
+    #obliczenie gradientu
+    grad = x_train.transpose() @ (sig - y_train) / sig.shape[0]
+    return log_cos_fun, grad
+
 
 def gradient_descent(obj_fun, w0, epochs, eta):
     """
