@@ -140,7 +140,11 @@ def prediction(x, w, theta):
     :return: funkcja wylicza wektor y o wymiarach Nx1. Wektor zawiera wartosci etykiet ze zbioru {0,1} dla obserwacji z x
      bazujac na modelu z parametrami w oraz progu klasyfikacji theta
     """
-    pass
+    #obliczenie funkcji signoidalnej
+    sig = sigmoid(x @ w)
+    #zwróć wektor Nx1 z wartościami etykiet dla obserwacji
+    return (sig > theta).astype(int).reshape(x.shape[0], 1)
+
 
 def f_measure(y_true, y_pred):
     """
