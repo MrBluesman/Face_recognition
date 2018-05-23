@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------
 
 import numpy as np
-
+import functools
 
 def sigmoid(x):
     """
@@ -175,4 +175,41 @@ def model_selection(x_train, y_train, x_val, y_val, w0, epochs, eta, mini_batch,
     Dodatkowo funkcja zwraca macierz F, ktora zawiera wartosci miary F dla wszystkich par (lambda, theta). Do uczenia nalezy
     korzystac z algorytmu SGD oraz kryterium uczenia z regularyzacja l2.
     """
-    pass
+    #inicjalizacja
+    tuples = []
+    fmeasure_list = []
+    wlist = []
+    alen = int(len(thetas))
+    blen = int(len(lambdas))
+    min_index = 0
+
+    #wygenerowanie modelów
+    def generate(index):
+        nonlocal wlist
+        (w, _) = stochastic_gradient_descent(
+            functools.partial(regularized_logistic_cost_function, regularization_lambda=lambdas[index])
+            , x_train, y_train, w0, epochs, eta, mini_batch)
+        wlist.append(w)
+
+    #wybranie najlepszego modelu, najlepszego progu klasyfikacji oraz najlepszego wektora parametró w
+    def select(index):
+        nonlocal min_index
+        i = int(index / alen)
+        j = int(index % alen)
+
+        #obliczenie F-measure
+        measure = f_measure(y_val, prediction(x_val, wlist[i], thetas[j]))
+        tuples.append((i, j, wlist[i]))
+        #dodanie do macierzy wszystkich par (lamda, theta)
+        fmeasure_list.append(measure)
+
+        #zmień na lepszy model jeśli jest mniejszy od wartości F-measure
+        if fmeasure_list[min_index] < measure:
+            min_index = index
+
+    #wywołanie
+    list(map(generate, range(blen)))
+    list(map(select, range(alen * blen)))
+
+    return (lambdas[tuples[min_index][0]], thetas[tuples[min_index][1]], tuples[min_index][2],
+            np.array(fmeasure_list).reshape(blen, alen))
